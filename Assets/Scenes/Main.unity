@@ -11640,6 +11640,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1112752349}
   - component: {fileID: 1112752348}
+  - component: {fileID: 1112752350}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -11678,7 +11679,7 @@ MonoBehaviour:
   FIRST_CARD_Z: 5
   X_GAP: 1.2
   Y_GAP: -0.3
-  Z_GAP: -0.4
+  Z_GAP: -1
   minDistance: 1.7
 --- !u!4 &1112752349
 Transform:
@@ -11695,6 +11696,18 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1112752350
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1112752347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 946cc9c8c68d5451d8495734ca1a6257, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &1122309724
 PrefabInstance:
   m_ObjectHideFlags: 0

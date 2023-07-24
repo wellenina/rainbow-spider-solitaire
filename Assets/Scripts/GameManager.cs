@@ -16,6 +16,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject[] slots;
     [SerializeField] private GameObject cardsParent;
     [SerializeField] private GameObject talon;
+    private UndoSystem undo;
     private TalonManager talonScript;
 
     // TO POSITION THE CARDS:
@@ -42,6 +43,7 @@ public class GameManager : MonoBehaviour
         {
             deck.Add(card.GetComponent<CardController>());
         }
+        undo = GetComponent<UndoSystem>();
         talonScript = talon.GetComponent<TalonManager>();
         Helpers.GetCamera();
 
@@ -185,25 +187,14 @@ public class GameManager : MonoBehaviour
         if (destinationPile.Count == 0) // if the pile is empty
         {
             // position the card in the empty slot:
-            //card.gameObject.transform.position = slots[destinationPileIndex].transform.position;
             newPosition = slots[destinationPileIndex].transform.position;
         }
         else
         {
             CardController topCard = piles[destinationPileIndex].Last();
             // position the card on the last card of the pile:
-            //card.gameObject.transform.position = topCard.gameObject.transform.position + new Vector3(0, Y_GAP, Z_GAP);
             newPosition = topCard.gameObject.transform.position + new Vector3(0, Y_GAP, Z_GAP);
-
-            // handle the last card:
-            if (card.SUIT == topCard.SUIT && card.VALUE + 1 == topCard.VALUE)
-            {
-                card.gameObject.transform.SetParent(topCard.gameObject.transform);
-            }
-            else
-            {
-                topCard.MakeAvailable(false);
-            }
+            HandleLastCard(topCard, card);
         }
 
         card.Move(newPosition);
@@ -229,17 +220,56 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void HandleLastCard(CardController lastCard, CardController movedCard)
+    {
+            if (!lastCard.isFaceUp) { return; }
+
+            if (movedCard.SUIT == lastCard.SUIT && movedCard.VALUE + 1 == lastCard.VALUE)
+            {
+                movedCard.gameObject.transform.SetParent(lastCard.gameObject.transform);
+                return;
+            }
+            lastCard.MakeAvailable(false);
+    }
+
 
     public void AutoPlace(CardController card)
+    {
+        int destinationPile = GetBetterMove(card);
+
+        if (destinationPile < 0)
+        {
+            card.MoveBack();
+            return;
+        }
+
+        bool wasFaceUp = getLastCardStatus(card.pileIndex);
+        undo.SaveMove(card, card.pileIndex, wasFaceUp);
+
+        List<CardController> removed = RemoveFromPile(card, card.pileIndex);
+        AddToPile(card, destinationPile, removed);
+    }
+
+    int GetBetterMove(CardController card)
     {
         for (int i = 0; i < piles.Count; i++)
         {
             if (card.pileIndex == i) { continue; } // ignore origin pile
-            else if (piles[i].Count > 0 && CheckLegalMove(card.VALUE, i))
+            if (piles[i].Count < 1) { continue; }
+            if (piles[i].Last().SUIT != card.SUIT) { continue; }
+            if (CheckLegalMove(card.VALUE, i))
             {
-                List<CardController> removed = RemoveFromPile(card, card.pileIndex);
-                AddToPile(card, i, removed);
-                return;
+                return i;
+            }
+        }
+
+        for (int i = 0; i < piles.Count; i++)
+        {
+            if (card.pileIndex == i) { continue; } // ignore origin pile
+            if (piles[i].Count < 1) { continue; }
+            if (CheckLegalMove(card.VALUE, i))
+            {
+                return i;
             }
         }
 
@@ -247,13 +277,11 @@ public class GameManager : MonoBehaviour
         {
             if (piles[i].Count == 0)
             {
-                List<CardController> removed = RemoveFromPile(card, card.pileIndex);
-                AddToPile(card, i, removed);
-                return;
+                return i;
             }
         }
 
-        card.MoveBack();
+        return -1;
     }
 
 
@@ -304,6 +332,22 @@ public class GameManager : MonoBehaviour
             talonScript.Empty();
         }
         yield return null;
+    }
+
+    public bool getLastCardStatus(int pileIndex)
+    {
+        if (piles[pileIndex].Count < 2)
+        {
+            return true;
+        }
+        CardController newTopCard = piles[pileIndex][piles[pileIndex].Count - 2];
+        return newTopCard.isFaceUp;
+    }
+
+    public void TurnCardFaceDown(int pileIndex)
+    {
+        CardController topCard = piles[pileIndex].Last();
+		topCard.TurnFaceUp(false);
     }
 
 }

@@ -18,6 +18,7 @@ public class CardController : MonoBehaviour
     private Material cardMaterial;
     [SerializeField] GameObject gameManager;
     private GameManager gameManagerScript;
+    private UndoSystem undo;
 
     private Vector3 originalPosition;
     private Vector3 offset;
@@ -29,19 +30,24 @@ public class CardController : MonoBehaviour
         cardCollider = GetComponent<Collider>();
         cardMaterial = GetComponent<MeshRenderer>().material;
         gameManagerScript = gameManager.GetComponent<GameManager>();
+        undo = gameManager.GetComponent<UndoSystem>();
     }
+
 
     public void Move(Vector3 targetPosition)
     {
         transform.DOMove(targetPosition, speed).SetEase(Ease.OutSine).SetSpeedBased(true);
     }
 
+
     public void TurnFaceUp(bool faceUp = true)
     {
-        transform.DORotate(new Vector3(0, 180.0f, 0), 0.7f);
+        float y = faceUp ? 180.0f : 0;
+        transform.DORotate(new Vector3(0, y, 0), 0.7f);
         isFaceUp = faceUp;
         MakeAvailable(faceUp);
     }
+
 
     public void MakeAvailable(bool isAvailable)
     {
@@ -71,16 +77,18 @@ public class CardController : MonoBehaviour
         // source.PlayOneShot(pickUpClip);
     }
 
+
     void OnMouseDrag()
     {
         Vector3 mousePosition = Helpers.GetMousePos();
         transform.position = mousePosition - offset;
     }
 
+
     void OnMouseUp()
     {
         float movement = Helpers.GetDistanceXY(originalPosition, transform.position);
-        if (movement < 0.1f)
+        if (movement < 0.05f)
         {
             gameManagerScript.AutoPlace(this);
             return;
@@ -95,11 +103,13 @@ public class CardController : MonoBehaviour
             // source.PlayOneShot(dropClip);
             return;
         }
+
+        bool wasFaceUp = gameManagerScript.getLastCardStatus(pileIndex);
+        undo.SaveMove(this, pileIndex, wasFaceUp);
         // source.PlayOneShot(dropClip);
         List<CardController> removed = gameManagerScript.RemoveFromPile(this, pileIndex);
         gameManagerScript.AddToPile(this, destinationPileIndex, removed);
     }
-
 
 
     public void MoveBack()
