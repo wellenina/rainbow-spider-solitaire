@@ -243,10 +243,11 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        bool wasFaceUp = getLastCardStatus(card.pileIndex);
-        undo.SaveMove(card, card.pileIndex, wasFaceUp);
+        int pileIndex = card.pileIndex;
+        bool wasFaceUp = getLastCardStatus(pileIndex, card);
+        undo.SaveMove(card, pileIndex, wasFaceUp);
 
-        List<CardController> removed = RemoveFromPile(card, card.pileIndex);
+        List<CardController> removed = RemoveFromPile(card, pileIndex);
         AddToPile(card, destinationPile, removed);
     }
 
@@ -334,13 +335,15 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
-    public bool getLastCardStatus(int pileIndex)
+    public bool getLastCardStatus(int pileIndex, CardController card)
     {
-        if (piles[pileIndex].Count < 2)
+        int cardIndex = piles[card.pileIndex].IndexOf(card);
+
+        if (cardIndex < 1)
         {
             return true;
         }
-        CardController newTopCard = piles[pileIndex][piles[pileIndex].Count - 2];
+        CardController newTopCard = piles[pileIndex][cardIndex-1];
         return newTopCard.isFaceUp;
     }
 
