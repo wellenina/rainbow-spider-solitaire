@@ -104,7 +104,7 @@ public class CardController : MonoBehaviour
             return;
         }
 
-        bool wasFaceUp = gameManagerScript.getLastCardStatus(pileIndex, this);
+        bool wasFaceUp = gameManagerScript.IsCardAboveFaceUp(pileIndex, this);
         undo.SaveMove(this, pileIndex, wasFaceUp);
         // source.PlayOneShot(dropClip);
         List<CardController> removed = gameManagerScript.RemoveFromPile(this, pileIndex);

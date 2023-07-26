@@ -28,6 +28,8 @@ public class GameManager : MonoBehaviour
     [SerializeField] private float Z_GAP = -0.2f;
 
     [SerializeField] private float minDistance = 1.5f;
+    private Vector3 completeSequencesPos = new Vector3(6.6f, 3.1f, 25.0f);
+    private int completeSequences;
 
 
     void StartNewGame()
@@ -43,6 +45,7 @@ public class GameManager : MonoBehaviour
         {
             deck.Add(card.GetComponent<CardController>());
         }
+        completeSequences = 0;
         undo = GetComponent<UndoSystem>();
         talonScript = talon.GetComponent<TalonManager>();
         Helpers.GetCamera();
@@ -165,18 +168,23 @@ public class GameManager : MonoBehaviour
 
         if (originPile.Count > 0)  // LA LISTA RIMASTA NON è VUOTA
         {
-            CardController newTopCard = originPile.Last();
-            if (!newTopCard.isFaceUp)
-            {
-                newTopCard.TurnFaceUp();
-            }
-            else if (!newTopCard.canBeMoved)
-            {
-                newTopCard.MakeAvailable(true);
-            }
+            HandleNewTopCard(originPile);
         }
 
         return removed;
+    }
+
+    void HandleNewTopCard(List<CardController> pile)
+    {
+        CardController newTopCard = pile.Last();
+        if (!newTopCard.isFaceUp)
+        {
+            newTopCard.TurnFaceUp();
+        }
+        else if (!newTopCard.canBeMoved)
+        {
+            newTopCard.MakeAvailable(true);
+        }
     }
 
     public void AddToPile(CardController card, int destinationPileIndex, List<CardController> removed)
@@ -194,7 +202,7 @@ public class GameManager : MonoBehaviour
             CardController topCard = piles[destinationPileIndex].Last();
             // position the card on the last card of the pile:
             newPosition = topCard.gameObject.transform.position + new Vector3(0, Y_GAP, Z_GAP);
-            HandleLastCard(topCard, card);
+            HandleCardAbove(topCard, card);
         }
 
         card.Move(newPosition);
@@ -216,11 +224,12 @@ public class GameManager : MonoBehaviour
         // check se la sequenza è completa:
         if (CheckCompleteSequence(destinationPile))
         {
-            CompleteSequence(destinationPile);
+            IEnumerator coroutine = CompleteSequence(destinationPile);
+            StartCoroutine(coroutine);
         }
     }
 
-    void HandleLastCard(CardController lastCard, CardController movedCard)
+    void HandleCardAbove(CardController lastCard, CardController movedCard)
     {
             if (!lastCard.isFaceUp) { return; }
 
@@ -235,7 +244,7 @@ public class GameManager : MonoBehaviour
 
     public void AutoPlace(CardController card)
     {
-        int destinationPile = GetBetterMove(card);
+        int destinationPile = GetBestMove(card);
 
         if (destinationPile < 0)
         {
@@ -244,14 +253,14 @@ public class GameManager : MonoBehaviour
         }
 
         int pileIndex = card.pileIndex;
-        bool wasFaceUp = getLastCardStatus(pileIndex, card);
+        bool wasFaceUp = IsCardAboveFaceUp(pileIndex, card);
         undo.SaveMove(card, pileIndex, wasFaceUp);
 
         List<CardController> removed = RemoveFromPile(card, pileIndex);
         AddToPile(card, destinationPile, removed);
     }
 
-    int GetBetterMove(CardController card)
+    int GetBestMove(CardController card)
     {
         for (int i = 0; i < piles.Count; i++)
         {
@@ -305,11 +314,30 @@ public class GameManager : MonoBehaviour
         return true;
     }
 
-    void CompleteSequence(List<CardController> pile)
+    IEnumerator CompleteSequence(List<CardController> pile)
     {
-        int firstCardIndex = pile.Count - 13;
-        Destroy(pile[firstCardIndex].gameObject);
-        pile.RemoveRange(firstCardIndex, 13);
+        yield return new WaitForSeconds(0.3f);
+        for (int i = 1; i <= 13; i++)
+        {
+            CardController card = pile[pile.Count-i];
+            card.gameObject.transform.SetParent(cardsParent.transform);
+            float yOffset = Y_GAP*completeSequences;
+            float zOffset = (0.2f*i) - (completeSequences*13);
+            card.Move(completeSequencesPos + new Vector3(0, yOffset, zOffset));
+            yield return new WaitForSeconds(0.16f);
+        }
+        pile.RemoveRange(pile.Count - 13, 13);
+        completeSequences++;
+
+        if (completeSequences == 8)
+        {
+            // YOU WON! congrats!
+        }
+
+        if (pile.Count > 0)
+        {
+            HandleNewTopCard(pile);
+        }
     }
 
 
@@ -335,7 +363,7 @@ public class GameManager : MonoBehaviour
         yield return null;
     }
 
-    public bool getLastCardStatus(int pileIndex, CardController card)
+    public bool IsCardAboveFaceUp(int pileIndex, CardController card)
     {
         int cardIndex = piles[card.pileIndex].IndexOf(card);
 
