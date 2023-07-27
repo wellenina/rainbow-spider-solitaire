@@ -28,12 +28,24 @@ public class UndoSystem : MonoBehaviour
 		moves.Add(newMove);
 	}
 
+    public void SaveMove()
+	{
+		SavedMove newMove = new SavedMove();
+		moves.Add(newMove);
+	}
 
     public void Undo()
 	{
 		if (moves.Count < 1) { return; }
 
 		SavedMove lastMove = moves.Last();
+
+        if (lastMove.dealtCards)
+        {
+            gameManagerScript.UndoDealingCards(); 
+            moves.RemoveAt(moves.Count - 1);
+            return;
+        }
 
 		if (!lastMove.wasFaceUp)
 		{
@@ -45,5 +57,10 @@ public class UndoSystem : MonoBehaviour
 		gameManagerScript.AddToPile(movedCard, lastMove.oldPileIndex, removed);
 		moves.RemoveAt(moves.Count - 1);
 	}
+
+    public void ClearMoves()
+    {
+        moves.Clear();
+    }
 
 }

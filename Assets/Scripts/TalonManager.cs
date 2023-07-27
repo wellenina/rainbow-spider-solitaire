@@ -16,11 +16,12 @@ public class TalonManager : MonoBehaviour
 
     void OnMouseDown()
     {
-        gameManagerScript.DealFromTalon();
+        IEnumerator coroutine = gameManagerScript.DealCards();
+        StartCoroutine(coroutine);
     }
 
-    public void Empty()
+    public void Enable(bool isEnabled)
     {
-        talonCollider.enabled = false;
+        talonCollider.enabled = isEnabled;
     }
 }

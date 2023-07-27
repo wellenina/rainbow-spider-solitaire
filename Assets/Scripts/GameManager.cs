@@ -105,6 +105,8 @@ public class GameManager : MonoBehaviour
             topCard.TurnFaceUp();
             yield return new WaitForSeconds(0.2f);
         }
+
+        Debug.Log("Finito di posizionare le carte!!!"); ////////////////////
     }
 
 
@@ -258,6 +260,8 @@ public class GameManager : MonoBehaviour
 
         List<CardController> removed = RemoveFromPile(card, pileIndex);
         AddToPile(card, destinationPile, removed);
+
+        //UnityEngine.InputSystem.DisableDevice(Mouse.current);
     }
 
     int GetBestMove(CardController card)
@@ -329,24 +333,21 @@ public class GameManager : MonoBehaviour
         pile.RemoveRange(pile.Count - 13, 13);
         completeSequences++;
 
+        Debug.Log("Finito una sequenza completa!!!"); ////////////////////
+        undo.ClearMoves();
+
         if (completeSequences == 8)
         {
             // YOU WON! congrats!
         }
-
-        if (pile.Count > 0)
+        else if (pile.Count > 0)
         {
             HandleNewTopCard(pile);
         }
     }
 
 
-    public void DealFromTalon()
-    {
-        StartCoroutine("DealCards");
-    }
-
-    IEnumerator DealCards()
+    public IEnumerator DealCards()
     {
         for (int i = 0; i < piles.Count; i++)
         {
@@ -358,9 +359,30 @@ public class GameManager : MonoBehaviour
         deck.RemoveRange(0, piles.Count);
         if (deck.Count == 0)
         {
-            talonScript.Empty();
+            talonScript.Enable(false);
         }
-        yield return null;
+        undo.SaveMove();
+        Debug.Log("Finito carte dal mazzo!!!"); ////////////////////
+    }
+
+    public void UndoDealingCards()
+    {
+        if (deck.Count == 0)
+        {
+            talonScript.Enable(true);
+        }
+
+        for (int i = piles.Count -1; i >= 0; i--)
+        {
+            CardController card = piles[i].Last();
+            RemoveFromPile(card, i); // toglie genitori, rende disponibile carta sopra
+            card.Move(talon.transform.position - Vector3.forward);
+            card.TurnFaceUp(false);
+            card.pileIndex = -1;
+            deck.Add(card);
+        }
+
+        Debug.Log("Finito di ANNULLARE carte dal mazzo!!!"); ////////////////////
     }
 
     public bool IsCardAboveFaceUp(int pileIndex, CardController card)
