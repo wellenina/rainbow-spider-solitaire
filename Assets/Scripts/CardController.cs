@@ -36,7 +36,9 @@ public class CardController : MonoBehaviour
 
     public void Move(Vector3 targetPosition)
     {
-        transform.DOMove(targetPosition, speed).SetEase(Ease.OutSine).SetSpeedBased(true);
+        transform.position = Helpers.GetXYposition(transform.position);
+        Vector3 temporaryPosition = Helpers.GetXYposition(targetPosition);
+        transform.DOMove(temporaryPosition, speed).SetEase(Ease.OutSine).SetSpeedBased(true).OnComplete(() => transform.position = targetPosition);
     }
 
 
@@ -73,7 +75,7 @@ public class CardController : MonoBehaviour
     void OnMouseDown()
     {
         originalPosition = transform.position;
-        offset = Helpers.GetMousePos() - new Vector3(originalPosition.x, originalPosition.y, -9.0f);
+        offset = Helpers.GetMousePos() - Helpers.GetXYposition(originalPosition);
         // source.PlayOneShot(pickUpClip);
     }
 

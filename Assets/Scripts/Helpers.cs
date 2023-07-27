@@ -6,6 +6,7 @@ public static class Helpers
 {
 
     public static Camera mainCamera;
+    [SerializeField] public static float zPos = -64.0f;
 
     public static void GetCamera()
     {
@@ -34,7 +35,7 @@ public static class Helpers
 
     public static Vector3 GetXYposition(Vector3 position)
     {
-        return new Vector3(position.x, position.y, 0);
+        return new Vector3(position.x, position.y, zPos);
     }
 
 
