@@ -324,7 +324,7 @@ public class GameManager : MonoBehaviour
             CardController card = pile[pile.Count-i];
             card.gameObject.transform.SetParent(cardsParent.transform);
             float yOffset = Y_GAP*completeSequences;
-            float zOffset = (0.2f*i) - (completeSequences*13);
+            float zOffset = (-0.2f*i) - (completeSequences*13);
             card.Move(completeSequencesPos + new Vector3(0, yOffset, zOffset));
             yield return new WaitForSeconds(0.16f);
         }
@@ -352,9 +352,10 @@ public class GameManager : MonoBehaviour
         {
             CardController card = deck[i];
             AddToPile(card, i, null);
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.2f);
             card.TurnFaceUp();
         }
+
         deck.RemoveRange(0, piles.Count);
         if (deck.Count == 0)
         {
