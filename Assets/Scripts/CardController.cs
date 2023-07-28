@@ -12,7 +12,7 @@ public class CardController : MonoBehaviour
     public bool isFaceUp = false;
     public bool canBeMoved = false;
     
-    private float speed = 40.0f; // number of units the card moves x second in tween
+    private float speed = 32.0f; // number of units the card moves x second in tween
 
     private Collider cardCollider;
     private Material cardMaterial;
@@ -34,11 +34,21 @@ public class CardController : MonoBehaviour
     }
 
 
-    public void Move(Vector3 targetPosition)
+    public void Move(Vector3 targetPosition, bool singleCard = false)
     {
+        if (!InputManager.areMultipleCardsMoving) { InputManager.DisableInput(true); }
         transform.position = Helpers.GetXYposition(transform.position);
         Vector3 temporaryPosition = Helpers.GetXYposition(targetPosition);
-        transform.DOMove(temporaryPosition, speed).SetEase(Ease.OutSine).SetSpeedBased(true).OnComplete(() => transform.position = targetPosition);
+        transform.DOMove(temporaryPosition, speed).SetEase(Ease.OutSine).SetSpeedBased(true).OnComplete(() => MoveToCorrectZ(targetPosition));
+    }
+
+    void MoveToCorrectZ(Vector3 targetPosition)
+    {
+        transform.position = targetPosition;
+        if (!InputManager.areMultipleCardsMoving)
+        {
+            InputManager.DisableInput(false);
+        }
     }
 
 
@@ -74,6 +84,7 @@ public class CardController : MonoBehaviour
 
     void OnMouseDown()
     {
+        if (InputManager.inputDisabled) { return; }
         originalPosition = transform.position;
         offset = Helpers.GetMousePos() - Helpers.GetXYposition(originalPosition);
         // source.PlayOneShot(pickUpClip);
@@ -82,6 +93,7 @@ public class CardController : MonoBehaviour
 
     void OnMouseDrag()
     {
+        if (InputManager.inputDisabled) { return; }
         Vector3 mousePosition = Helpers.GetMousePos();
         transform.position = mousePosition - offset;
     }
@@ -89,6 +101,8 @@ public class CardController : MonoBehaviour
 
     void OnMouseUp()
     {
+        if (InputManager.inputDisabled) { return; }
+
         float movement = Helpers.GetDistanceXY(originalPosition, transform.position);
         if (movement < 0.05f)
         {

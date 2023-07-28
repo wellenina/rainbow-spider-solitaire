@@ -16,6 +16,8 @@ public class TalonManager : MonoBehaviour
 
     void OnMouseDown()
     {
+        if (InputManager.inputDisabled) { return; }
+        
         IEnumerator coroutine = gameManagerScript.DealCards();
         StartCoroutine(coroutine);
     }

@@ -77,6 +77,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator PositionPiles()
     {
+        InputManager.MultipleCardsMoving(true);
         // for each row of cards
         for (int cardIndex = 0; cardIndex < piles[0].Count; cardIndex++)
         {
@@ -106,7 +107,7 @@ public class GameManager : MonoBehaviour
             yield return new WaitForSeconds(0.2f);
         }
 
-        Debug.Log("Finito di posizionare le carte!!!"); ////////////////////
+        InputManager.MultipleCardsMoving(false);
     }
 
 
@@ -148,8 +149,7 @@ public class GameManager : MonoBehaviour
     }
 
     public List<CardController> RemoveFromPile(CardController card, int originPileIndex)
-    { 
-        // se la carta spostata aveva genitori:
+    {
         card.gameObject.transform.SetParent(cardsParent.transform);
 
         List<CardController> originPile = piles[originPileIndex];
@@ -168,7 +168,7 @@ public class GameManager : MonoBehaviour
             originPile.RemoveRange(index, count);
         }
 
-        if (originPile.Count > 0)  // LA LISTA RIMASTA NON è VUOTA
+        if (originPile.Count > 0)
         {
             HandleNewTopCard(originPile);
         }
@@ -223,7 +223,6 @@ public class GameManager : MonoBehaviour
             }
         }
 
-        // check se la sequenza è completa:
         if (CheckCompleteSequence(destinationPile))
         {
             IEnumerator coroutine = CompleteSequence(destinationPile);
@@ -260,8 +259,6 @@ public class GameManager : MonoBehaviour
 
         List<CardController> removed = RemoveFromPile(card, pileIndex);
         AddToPile(card, destinationPile, removed);
-
-        //UnityEngine.InputSystem.DisableDevice(Mouse.current);
     }
 
     int GetBestMove(CardController card)
@@ -320,6 +317,7 @@ public class GameManager : MonoBehaviour
 
     IEnumerator CompleteSequence(List<CardController> pile)
     {
+        InputManager.MultipleCardsMoving(true);
         yield return new WaitForSeconds(0.3f);
         for (int i = 1; i <= 13; i++)
         {
@@ -333,7 +331,7 @@ public class GameManager : MonoBehaviour
         pile.RemoveRange(pile.Count - 13, 13);
         completeSequences++;
 
-        Debug.Log("Finito una sequenza completa!!!"); ////////////////////
+        InputManager.MultipleCardsMoving(false);
         undo.ClearMoves();
 
         if (completeSequences == 8)
@@ -349,6 +347,7 @@ public class GameManager : MonoBehaviour
 
     public IEnumerator DealCards()
     {
+        InputManager.MultipleCardsMoving(true);
         for (int i = 0; i < piles.Count; i++)
         {
             CardController card = deck[i];
@@ -362,11 +361,12 @@ public class GameManager : MonoBehaviour
             talonScript.Enable(false);
         }
         undo.SaveMove();
-        Debug.Log("Finito carte dal mazzo!!!"); ////////////////////
+        InputManager.MultipleCardsMoving(false);
     }
 
     public void UndoDealingCards()
     {
+        InputManager.MultipleCardsMoving(true);
         if (deck.Count == 0)
         {
             talonScript.Enable(true);
@@ -375,14 +375,14 @@ public class GameManager : MonoBehaviour
         for (int i = piles.Count -1; i >= 0; i--)
         {
             CardController card = piles[i].Last();
-            RemoveFromPile(card, i); // toglie genitori, rende disponibile carta sopra
+            RemoveFromPile(card, i);
             card.Move(talon.transform.position - Vector3.forward);
             card.TurnFaceUp(false);
             card.pileIndex = -1;
             deck.Add(card);
         }
 
-        Debug.Log("Finito di ANNULLARE carte dal mazzo!!!"); ////////////////////
+        InputManager.MultipleCardsMoving(false);
     }
 
     public bool IsCardAboveFaceUp(int pileIndex, CardController card)
