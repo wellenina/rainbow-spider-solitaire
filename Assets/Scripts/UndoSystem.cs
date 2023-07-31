@@ -14,14 +14,6 @@ public class UndoSystem : MonoBehaviour
         gameManagerScript = GetComponent<GameManager>();
     }
 
-    void Update()
-    {
-        if (Input.GetKeyDown(KeyCode.Z))
-        {
-            Undo();
-        }
-    }
-
     public void SaveMove(CardController movedCard, int oldPileIndex, bool wasFaceUp)
 	{
 		SavedMove newMove = new SavedMove(movedCard, oldPileIndex, wasFaceUp);
