@@ -6,30 +6,35 @@ using UnityEngine;
 public class UndoSystem : MonoBehaviour
 {
     private GameManager gameManagerScript;
+    private GUImanager gui;
     private List<SavedMove> moves = new List<SavedMove>();
 
 
     void Start()
     {
         gameManagerScript = GetComponent<GameManager>();
+        gui = GetComponent<GUImanager>();
     }
 
     public void SaveMove(CardController movedCard, int oldPileIndex, bool wasFaceUp)
 	{
 		SavedMove newMove = new SavedMove(movedCard, oldPileIndex, wasFaceUp);
 		moves.Add(newMove);
+        gui.IncrementMoves();
 	}
 
     public void SaveMove()
 	{
 		SavedMove newMove = new SavedMove();
 		moves.Add(newMove);
+        gui.IncrementMoves();
 	}
 
     public void Undo()
 	{
 		if (moves.Count < 1) { return; }
 
+        gui.IncrementMoves();
 		SavedMove lastMove = moves.Last();
 
         if (lastMove.dealtCards)

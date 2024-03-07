@@ -17,6 +17,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject cardsParent;
     [SerializeField] private GameObject talon;
     private UndoSystem undo;
+    //private GUImanager gui;
     private TalonManager talonScript;
 
     // TO POSITION THE CARDS:
@@ -47,6 +48,7 @@ public class GameManager : MonoBehaviour
         }
         completeSequences = 0;
         undo = GetComponent<UndoSystem>();
+        //gui = GetComponent<GUImanager>();
         talonScript = talon.GetComponent<TalonManager>();
         Helpers.GetCamera();
 

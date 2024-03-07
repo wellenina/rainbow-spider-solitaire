@@ -11780,7 +11780,7 @@ GameObject:
   - component: {fileID: 1058717698}
   - component: {fileID: 1058717697}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: MovesText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -12540,6 +12540,7 @@ GameObject:
   - component: {fileID: 1112752349}
   - component: {fileID: 1112752348}
   - component: {fileID: 1112752350}
+  - component: {fileID: 1112752351}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -12607,6 +12608,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 946cc9c8c68d5451d8495734ca1a6257, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1112752351
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1112752347}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 50e4261fa624a491f97408a796327fd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  movesGUI: {fileID: 1058717695}
+  timeGUI: {fileID: 1494359999}
 --- !u!1001 &1122309724
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -17085,7 +17100,7 @@ GameObject:
   - component: {fileID: 1494360002}
   - component: {fileID: 1494360001}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: TimeText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -17290,7 +17305,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1501981883}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1112752351}
+        m_TargetAssemblyTypeName: GUImanager, Assembly-CSharp
+        m_MethodName: PauseResume
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1501981883
 MonoBehaviour:
   m_ObjectHideFlags: 0
